@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="05022021-01" author="Vadim">
+        <comment>
+            Создание таблицы
+        </comment>
+        <sql>
+            CREATE TABLE public."Employer"
+            (
+                "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+                "Chief" bigint,
+                "Name" character(255) COLLATE pg_catalog."default" NOT NULL,
+                "Branch_office" character(255) COLLATE pg_catalog."default",
+                CONSTRAINT "Employer_pkey" PRIMARY KEY ("Id"),
+                CONSTRAINT "Employer_fkey" FOREIGN KEY ("Chief")
+                    REFERENCES public."Employer" ("Id") MATCH SIMPLE
+                    ON UPDATE NO ACTION
+                    ON DELETE NO ACTION
+                    NOT VALID
+            )
+
+            TABLESPACE pg_default;
+
+            ALTER TABLE public."Employer"
+                OWNER to "Vadim";
+            
+            CREATE TABLE public."Task"
+            (
+                "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+                "Priority" bigint NOT NULL,
+                "Description" character(512) COLLATE pg_catalog."default" NOT NULL,
+                "Employer_id" bigint,
+                CONSTRAINT "Task_pkey" PRIMARY KEY ("Id"),
+                CONSTRAINT "Employer_id" FOREIGN KEY ("Employer_id")
+                    REFERENCES public."Employer" ("Id") MATCH SIMPLE
+                    ON UPDATE NO ACTION
+                    ON DELETE NO ACTION
+                    NOT VALID
+            )
+
+            TABLESPACE pg_default;
+
+            ALTER TABLE public."Task"
+                OWNER to "Vadim";
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
