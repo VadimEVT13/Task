@@ -22,9 +22,19 @@
         <password>Razer222</password>
         <database.url>jdbc:postgresql://localhost:5432/taskdb0502</database.url>        
         <profile.changeLogFile>src/main/resources/liquibase/db.changelog-master.xml</profile.changeLogFile>
+        <junit.version>4.13.1</junit.version>
+        <hikaricp.version>4.0.1</hikaricp.version>
+        <otj.version>0.13.3</otj.version>
     </properties>
     
     <dependencies>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>3.6.3</version>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
@@ -45,6 +55,25 @@
             <version>${jooq.version}</version>
         </dependency>
         
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikaricp.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.opentable.components</groupId>
+            <artifactId>otj-pg-embedded</artifactId>
+            <version>${otj.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
      <build>
