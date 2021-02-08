@@ -18,9 +18,6 @@
         <jooq.version>3.14.7</jooq.version>
         <postgresql.version>42.2.18</postgresql.version>
         <liquibase.version>4.2.2</liquibase.version>
-        <user>Vadim</user>
-        <password>Razer222</password>
-        <database.url>jdbc:postgresql://localhost:5432/taskdb0502</database.url>        
         <profile.changeLogFile>src/main/resources/liquibase/db.changelog-master.xml</profile.changeLogFile>
         <junit.version>4.13.1</junit.version>
         <hikaricp.version>4.0.1</hikaricp.version>
@@ -183,7 +180,7 @@
                 <configuration>
                     <jdbc>
                         <driver>org.postgresql.Driver</driver>
-                        <url>jdbc:postgresql://localhost:5432/taskdb</url>
+                        <url>${database.url}</url>
                         <user>${user}</user>
                     </jdbc>
                     <generator>
