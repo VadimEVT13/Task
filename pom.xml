@@ -198,8 +198,7 @@
                         </target>
                     </generator>
                 </configuration>
-            </plugin>  
-             
+            </plugin>               
         </plugins>
     </build>
 </project>
