@@ -198,55 +198,66 @@ public class JUnitTest {
                 r_task_discription_and_chief.getStatus()    != 200                      
                 , true);
         
-//        // ----**** Проверка getEmployers ****----
-//        System.out.println("test: EmployerGet");
-//        Response r_get = ac.getEmployers();
-//        assertEquals(r_get.getStatus() == 200, true);
-//               
-//        long kirks_id = 0; //id кирка, в последствии его модифицировать
-//        long spoke_id = 0; //id спока, в последствии попробовать его удалить
-//        
-//        JSONParser parser = new JSONParser();
-//        JSONArray r_employers = (JSONArray) parser.parse((String)r_get.getEntity());
-//
-//        for(Object o: r_employers) {
-//            JSONObject obj = (JSONObject) o;
-//            if(((String)obj.get("NAME")).trim().equals("Kirk"))
-//            {
-//                kirks_id = (long) obj.get("ID");
-//            }
-//            if(((String)obj.get("NAME")).trim().equals("Spoke"))
-//            {
-//                spoke_id = (long) obj.get("ID");
-//            }
-//        }      
-//              
-//        // ----**** Проверка обновления Employer ****----
-//        System.out.println("test: EmployerUpdate");
-//        Response r_update_kirk_1 = ac.updateEmployer("Kirk_2",  "",         "Branch_2", kirks_id);
-//        Response r_update_kirk_2 = ac.updateEmployer("Kirk",    "Spoke",    "Branch_2", kirks_id);
-//        Response r_update_kirk_3 = ac.updateEmployer("",        "",         "Branch_2", kirks_id);
-//        Response r_update_kirk_4 = ac.updateEmployer("Kirk",    "",         "",         kirks_id);
-//        Response r_update_kirk_5 = ac.updateEmployer("Kirk",    "",         "Branch_3", kirks_id);
-//        
-//        assertEquals(
-//                r_update_kirk_1.getStatus() == 200 &&
-//                r_update_kirk_2.getStatus() == 200 &&
-//                r_update_kirk_3.getStatus() != 200 &&
-//                r_update_kirk_4.getStatus() != 200 &&
-//                r_update_kirk_5.getStatus() == 200                        
-//                , true);
-//        
-//        // ----**** Удаление Employer ****----
-//        System.out.println("test: EmployerDelete");
-//        Response r_delete_kirk_1 = ac.deleteEmployer(kirks_id);
-//        Response r_delete_kirk_2 = ac.deleteEmployer(kirks_id);
-//        Response r_delete_spoke  = ac.deleteEmployer(spoke_id);
-//        
-//        assertEquals(
-//                r_delete_kirk_1.getStatus() == 200 &&
-//                r_delete_kirk_2.getStatus() != 200 &&
-//                r_delete_spoke.getStatus()  != 200
-//                , true);        
+        // ----**** Проверка getTask ****----
+        System.out.println("test: TaskGet");
+        Response r_get = ac.getTasks();
+        assertEquals(r_get.getStatus() == 200, true);
+               
+        long vadim_task_id = 0; //id vadim, в последствии его модифицировать
+        long spoke_id = 0;      //id спока, в последствии попробовать его удалить
+        
+        JSONParser parser = new JSONParser();
+        JSONArray r_tasks = (JSONArray) parser.parse((String)r_get.getEntity());
+
+        for(Object o: r_tasks) {
+            JSONObject obj = (JSONObject) o;
+            if(((String)obj.get("NAME")).trim().equals("Vadim"))
+            {
+                vadim_task_id = (long) obj.get("ID");
+            }
+        }
+        
+        Response r_get_employer = ac.getEmployers();
+        JSONArray r_employers = (JSONArray) parser.parse((String)r_get_employer.getEntity());
+        
+        for(Object o: r_employers) {
+            JSONObject obj = (JSONObject) o;
+            if(((String)obj.get("NAME")).trim().equals("Spoke"))
+            {
+                spoke_id = (long) obj.get("ID");
+            }
+        }
+              
+              
+        // ----**** Проверка обновления Employer ****----
+        System.out.println("test: TaskUpdate");
+        Response r_update_vadim_task_1 = ac.updateTask("Новое описание",    "Vadim",    1l, vadim_task_id);
+        Response r_update_vadim_task_2 = ac.updateTask("Новое описание",    "Vadim",    2l, vadim_task_id);
+        
+        Response r_update_vadim_task_3 = ac.updateTask("Новое описание",    "Vadim",    5l, vadim_task_id);
+        Response r_update_vadim_task_4 = ac.updateTask("",                  "Vadim",    1l, vadim_task_id);
+        Response r_update_vadim_task_5 = ac.updateTask("Новое описание",    "Vadim",    1l, 100l);
+        Response r_update_vadim_task_6 = ac.updateTask("Новое описание",    "",         1l, vadim_task_id);
+        
+        assertEquals(
+                r_update_vadim_task_1.getStatus() == 200 &&
+                r_update_vadim_task_2.getStatus() == 200 &&
+                r_update_vadim_task_3.getStatus() != 200 &&
+                r_update_vadim_task_4.getStatus() != 200 &&
+                r_update_vadim_task_5.getStatus() != 200 &&
+                r_update_vadim_task_6.getStatus() != 200                        
+                , true);
+        
+        // ----**** Удаление Task и Employer с задачей****----
+        System.out.println("test: TaskDelete");
+        Response r_delete_vadim_task_1  = ac.deleteTask(vadim_task_id);
+        Response r_delete_vadim_task_2  = ac.deleteTask(vadim_task_id);
+        Response r_delete_spoke         = ac.deleteEmployer(spoke_id);
+        
+        assertEquals(
+                r_delete_vadim_task_1.getStatus()   == 200 &&
+                r_delete_vadim_task_2.getStatus()   != 200 &&
+                r_delete_spoke.getStatus()          != 200
+                , true);        
     }
 }

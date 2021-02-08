@@ -70,8 +70,8 @@ public class AppController {
     @Path("/getTasks")
     public Response getTasks()
     {
-        try (Connection conn = DataSource.getConnection()) {
-            DSLContext create = DSL.using(conn, POSTGRES);
+        try {
+            DSLContext create = DSL.using(appConn, POSTGRES);
             Result<Record4<Long, String, String, Long>> record = create.select(
                     TASK.ID.as("ID"),
                     TASK.DESCRIPTION.as("DESCRIPTION"),
@@ -87,7 +87,7 @@ public class AppController {
                 .header(false)
                 .recordFormat(RecordFormat.OBJECT))).build();
         } catch (Exception e) {
-            return Response.ok(e.getMessage()).build();
+            return Response.status(500).entity(e.getMessage()).build();
         } 
     }
         
@@ -281,13 +281,8 @@ public class AppController {
                         )
                         .from(TASK)
                         .fetch();
-//                if(!record.isEmpty()) {
-//                    long max_priority = record.getValue(0, max(TASK.PRIORITY)) + 1l;
-//                    if(priority > max_priority) return Response.status(500).build();
-//                } else {
-//                    if(priority > 2) return Response.status(500).build();
-//                }
-                long max_priority = record.getValue(0, max(TASK.PRIORITY)) != null ? record.getValue(0, max(TASK.PRIORITY)) : 1;
+                
+                long max_priority = record.getValue(0, max(TASK.PRIORITY)) != null ? record.getValue(0, max(TASK.PRIORITY)) + 1: 1;
                 if(priority > max_priority) return Response.status(500).build();
                 
                 record = create.select(
@@ -312,24 +307,37 @@ public class AppController {
     @POST
     @Path("/updateTask")
     public Response updateTask(
-            @DefaultValue("")           @QueryParam("description")  String  description,
-            @DefaultValue("")           @QueryParam("chief")        String  chief,
-            @DefaultValue("noPriority") @QueryParam("priority")     Long    priority,
-            @DefaultValue("noId")       @QueryParam("id")           Long    id
+            @DefaultValue("")   @QueryParam("description")  String  description,
+            @DefaultValue("")   @QueryParam("chief")        String  chief,
+            @DefaultValue("")   @QueryParam("priority")     Long    priority,
+            @DefaultValue("")   @QueryParam("id")           Long    id
             )
     {
         description = description.trim();
         chief = chief.trim();
                 
         if("".equals(description) || "".equals(chief)) {
-            return Response.status(502).build();
+            return Response.status(500).build();
         }
         
+        if(!(priority instanceof Long) && !(id instanceof Long))    return Response.status(500).entity("Приоритет или ID не число").build();
+        if(priority <= 0)                                           return Response.status(500).entity("Приоритет не может быть ниже или равен 0").build();
+        
         if(!chief.isEmpty() && !description.isEmpty()) {
-            try (Connection conn = DataSource.getConnection()) {
-                DSLContext create = DSL.using(conn, POSTGRES);
-                               
+            try {
+                DSLContext create = DSL.using(appConn, POSTGRES);
+                    
                 Result<Record1<Long>> record = create.select(
+                        max(TASK.PRIORITY) 
+                        )
+                        .from(TASK)
+                        .fetch();
+                
+                long max_priority = record.getValue(0, max(TASK.PRIORITY)) != null ? record.getValue(0, max(TASK.PRIORITY)) + 1: 1;
+                if(priority > max_priority)                         return Response.status(500).entity("Приоритет выше, чем максимальный приоритет (" + 
+                                                                                                        max_priority + ")").build();
+                
+                record = create.select(
                     EMPLOYER.ID
                     )
                     .distinctOn(EMPLOYER.NAME)
@@ -338,7 +346,17 @@ public class AppController {
                     .fetch();                
                 
                 if(record.isEmpty())
-                    return Response.ok("Нет такого роководителя").build();
+                    return Response.status(500).entity("Нет такого роководителя").build();
+                
+                record = create.select(
+                    TASK.ID
+                    )
+                    .from(TASK)
+                    .where(TASK.ID.eq(id))
+                    .fetch();                
+                
+                if(record.isEmpty())
+                    return Response.status(500).entity("Нет такой задачи").build();
                 
                 create.update(TASK)
                     .set(TASK.DESCRIPTION,      description)
@@ -347,11 +365,11 @@ public class AppController {
                     .where(TASK.ID.eq(id))
                     .execute();
             } catch (Exception e) {
-                return Response.ok(e.getMessage()).build();
+                return Response.status(500).entity(e.getMessage()).build();
             }
             return Response.ok("Обновил задачу").build();
         }  
-        return Response.status(502).build();                    
+        return Response.status(500).build();                    
     }
     
     
@@ -360,14 +378,24 @@ public class AppController {
     public Response deleteTask(
             @DefaultValue("noId") @QueryParam("id") Long id
             ) {
-            try (Connection conn = DataSource.getConnection()) {
-                DSLContext create = DSL.using(conn, POSTGRES);
+            try {
+                DSLContext create = DSL.using(appConn, POSTGRES);
+                
+                Result<Record1<Long>> record = create.select(
+                    TASK.ID
+                    )
+                    .from(TASK)
+                    .where(TASK.ID.eq(id))
+                    .fetch();                
+                
+                if(record.isEmpty())
+                    return Response.status(500).entity("Нет такой задачи").build();                
                                 
                 create.delete(TASK)                    
                     .where(TASK.ID.eq(id))
                     .execute();
             } catch (Exception e) {
-                return Response.ok(e.getMessage()).build();
+                return Response.status(500).entity(e.getMessage()).build();
             }
             return Response.ok("Удалил задачу").build();
     }
