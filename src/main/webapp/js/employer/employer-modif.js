@@ -91,9 +91,9 @@ class EmployerModif extends React.Component {
                         <label>Филиал:</label><br />
                         <input type="text" value={this.props.cur_employer.branch} onChange={this.onChangeBranch}/>
                     </p>
-                    <input type="submit" value="Отправить"/>
+                    <button type="submit">Отправить</button>
                 </form>
-                <button type='submit' onClick={this.deleteEmployer}>Удалить</button>
+                <button type="submit" onClick={this.deleteEmployer}>Удалить</button>
             </div>
         );
     };
